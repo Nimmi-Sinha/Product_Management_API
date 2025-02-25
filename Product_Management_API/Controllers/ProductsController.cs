@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Product_Management_API.Data;
 using Product_Management_API.Models;
-using Product_Management_API.Services;
 using Product_Management_API.DTO;
+using Product_Management_API.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Product_Management_API.Controllers
 {
@@ -49,6 +50,7 @@ namespace Product_Management_API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public ActionResult PutProducts(int id, ProductsDTO productdto)
         {
             if (id != productdto.ProductId)
@@ -64,7 +66,7 @@ namespace Product_Management_API.Controllers
         // POST: api/Products1
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-       
+        [Authorize(Roles = "admin")]
         public ActionResult PostProducts(ProductsDTO products)
         {
             _IProduct.AddProduct(products);
@@ -72,6 +74,8 @@ namespace Product_Management_API.Controllers
         }
         // DELETE: api/Products1/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        
         public ActionResult DeleteProducts(int id)
         {
             _IProduct.DeleteProduct(id);

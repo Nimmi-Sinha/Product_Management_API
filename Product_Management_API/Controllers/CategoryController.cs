@@ -1,0 +1,77 @@
+﻿using Product_Management_API.DTO;
+using Product_Management_API.Models;
+using Product_Management_API.Repository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Product_Management_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CategoryController : ControllerBase
+    {
+        private readonly ICategoryRepository _categoryRepository;
+        public CategoryController(ICategoryRepository categoryRepository)
+        {
+            _categoryRepository = categoryRepository;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
+        {
+            var categories = await _categoryRepository.GetAllCategorysAsync();
+            if (categories == null) { return NotFound(); }
+            return Ok(categories);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CategoryDTO>> GetCategory(int id)
+        {
+            var category = await _categoryRepository.GetCategoryByIdAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return category;
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<CategoryDTO>> PostCategories(CategoryDTO categoryDto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var createdCategory = await _categoryRepository.CreateCategoryAsync(categoryDto);
+
+            return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<CategoryDTO>> PutCategories(int id, CategoryDTO categoryDto)
+        {
+            if (id != categoryDto.CategoryId) return BadRequest();
+            try
+            {
+                await _categoryRepository.UpdateCategoryAsync(categoryDto);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                _categoryRepository.CategoryAvailable(id);
+                if (!_categoryRepository.CategoryAvailable(id))
+                {
+                    return NotFound();
+                }
+            }
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult<Category>> DeleteCategory(int id)
+        {
+            await _categoryRepository.DeleteCategoryAsync(id);
+            return NoContent();
+        }
+    }
+}

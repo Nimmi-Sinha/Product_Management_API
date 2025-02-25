@@ -4,18 +4,19 @@ using Microsoft.EntityFrameworkCore;
 using Product_Management_API.Data;
 using Product_Management_API.DTO;
 using Product_Management_API.Models;
-using Product_Management_API.Services;
+using Product_Management_API.Repositories;
 
-namespace Product_Management_API.Repositories
+namespace Product_Management_API.Services
 {
     public class ProductRepository : IProducts
     {
-        private ApplicationDbContext _context;
-        public ProductRepository(ApplicationDbContext context) {
+        private AppDbContext _context;
+        public ProductRepository(AppDbContext context)
+        {
             _context = context;
         }
 
-      
+
         public List<Products> GetAllProduct()
         {
             var products = _context.Product.ToList();
@@ -38,7 +39,7 @@ namespace Product_Management_API.Repositories
             _context.Product.Update(_productrepository);
             _context.SaveChanges();
         }
-        
+
         public void AddProduct(ProductsDTO product)
         {
             var _productrepository = new Products()
@@ -56,20 +57,22 @@ namespace Product_Management_API.Repositories
         public void DeleteProduct(int id)
         {
             Products? product = _context.Product.FirstOrDefault(x => x.ProductId == id);
-            if (product != null) { 
-            _context.Product.Remove(product);
+            if (product != null)
+            {
+                _context.Product.Remove(product);
                 _context.SaveChanges();
             }
         }
         public bool ProductsExists(int id)
         {
             Products? products = _context.Product.FirstOrDefault(x => x.ProductId == id);
-            if (products != null) {
+            if (products != null)
+            {
                 return true;
             }
             return false;
         }
-       
+
 
     }
 }

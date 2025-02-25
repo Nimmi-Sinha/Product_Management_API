@@ -10,7 +10,7 @@ using Product_Management_API.Data;
 
 namespace Product_Management_API.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20250212152659_scriptupdate")]
     partial class scriptupdate
     {
