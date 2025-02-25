@@ -1,14 +1,11 @@
-﻿using Product_Management_API.Models;
+﻿using Product_Management_API.DTO;
+using Product_Management_API.Models;
 
 namespace Product_Management_API.Repository
 {
     public interface IAuthRepository
     {
-        User AddUser (User user);
+        User AddUser (UserDTO user);
         string Login(LoginRequest loginRequest);
-
-        Role AddRole(Role role);
-
-        bool AssignRoleToUser(AddUserRole obj);
     }
 }

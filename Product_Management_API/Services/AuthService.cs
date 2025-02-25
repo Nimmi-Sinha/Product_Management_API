@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Product_Management_API.DTO;
 
 namespace Product_Management_API.Service
 {
@@ -19,43 +20,25 @@ namespace Product_Management_API.Service
             _configuration = configuration;
         }
 
-        public Role AddRole(Role role)
-        {
-            var addedRole = _appContext.Roles.Add(role);
-            _appContext.SaveChanges();
-            return addedRole.Entity;
-        }
+       
 
-        public User AddUser(User user)
+        public User AddUser(UserDTO userDto)
         {
+            var user = new User()
+            {
+                Id = userDto.Id,
+                Name = userDto.Name,
+                Password = userDto.Password,
+                UserName = userDto.UserName,
+                Role = userDto.Role
+            };
+
             var addedUser = _appContext.Users.Add(user);
             _appContext.SaveChanges();
             return addedUser.Entity;
         }
 
-        public bool AssignRoleToUser(AddUserRole obj)
-        {
-            try
-            {
-                var addRoles = new List<UserRole>();
-                var user = _appContext.Users.FirstOrDefault(x => x.Id == obj.UserId);
-                if (user == null) { throw new Exception("User is not vallid"); }
-                foreach (var role in obj.RoleIds)
-                {
-                    var userRole = new UserRole();
-                    userRole.RoleId = role;
-                    userRole.UserId = user.Id;
-                    addRoles.Add(userRole);
-                }
-                _appContext.UserRoles.AddRange(addRoles);
-                _appContext.SaveChanges();
-                return true;
-            }
-            catch (Exception ex) {
-                return false;
-            }
-            
-        }
+    
 
         public string Login(LoginRequest loginRequest)
         {
@@ -72,12 +55,13 @@ namespace Product_Management_API.Service
                         new Claim("Id",user.Id.ToString()),
                         new Claim("UserName",user.UserName),
                     };
-                    var userRoles = _appContext.UserRoles.Where(u => u.UserId == user.Id).ToList();
-                    var roleIds = userRoles.Select(s => s.RoleId).ToList();
-                    var roles = _appContext.Roles.Where(r => roleIds.Contains(r.Id)).ToList();
-                    foreach (var role in roles)
+                    //var userRoles = _appContext.UserRoles.Where(u => u.UserId == user.Id).ToList();
+                    var userRoles = _appContext.Users.Where(u => u.UserName == user.UserName && u.Password == user.Password).ToList();
+                    //var roleIds = userRoles.Select(s => s.RoleId).ToList();
+                   // var roles = _appContext.Roles.Where(r => roleIds.Contains(r.Id)).ToList();
+                    foreach (var role in userRoles)
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, role.Name));
+                        claims.Add(new Claim(ClaimTypes.Role, role.Role));
                     }
                     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                     var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

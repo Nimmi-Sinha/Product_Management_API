@@ -2,6 +2,7 @@
 using Product_Management_API.Repository;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Product_Management_API.DTO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,26 +30,16 @@ namespace Product_Management_API.Controllers
             return Ok( new {success = true,token = jwtToken,message ="successfully logged in" });
         }
 
-        [HttpPost("assignRole")]
-        public bool AssignRoleToUser([FromBody]AddUserRole userRole)
-        {
-          var addedUserRole = _authRepository.AssignRoleToUser(userRole);
-           return addedUserRole;
-        }
+        
 
         [HttpPost("addUser")]
-        public User AddUser([FromBody] User user)
+        public User AddUser([FromBody] UserDTO user)
         {
             var addedUser = _authRepository.AddUser(user);
             return addedUser;
         }
 
-        [HttpPost("addRole")]
-        public Role AddRole( [FromBody] Role role)
-        {
-            var addedRole = _authRepository.AddRole(role);
-            return addedRole;
-        }
+      
 
     }
 }
